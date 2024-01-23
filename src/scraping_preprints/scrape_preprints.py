@@ -3,6 +3,8 @@ import json
 import pandas as pd
 import os
 
+
+# Check if the file exists
 def file_exists(file_path):
     """Check if a file exists at the given path."""
     return os.path.isfile(file_path)
