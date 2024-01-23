@@ -1,6 +1,11 @@
 from paperscraper.get_dumps import biorxiv, medrxiv, chemrxiv
 import json
 import pandas as pd
+import os
+
+def file_exists(file_path):
+    """Check if a file exists at the given path."""
+    return os.path.isfile(file_path)
 
 # Get the most recent date from each file
 def get_most_recent_date(file_path):
@@ -55,28 +60,25 @@ def save_jsonl(data, file_path):
         for line in data:
             file.write(line)
 
-
-# Get start dates (most recent date is on the bottom)
-chem_date = get_most_recent_date('data/latest/chemrxiv.jsonl')
-med_date = get_most_recent_date('data/latest/medrxiv.jsonl')
-bio_date = get_most_recent_date('data/latest/biorxiv.jsonl')
-
 # The whole thing
-chemrxiv(begin_date=chem_date, save_path="data/latest/chemrxiv_tmp.jsonl")  #  Takes ~45min and should result in ~20 MB file
-medrxiv(begin_date=med_date, save_path="data/latest/medrxiv_tmp.jsonl")  #  Takes ~30min and should result in ~35 MB file
-biorxiv(begin_date=bio_date, save_path="data/latest/biorxiv_tmp.jsonl")  # Takes ~1h and should result in ~350 MB file
+chem_date = get_most_recent_date('data/latest/chemrxiv.jsonl') if file_exists('data/latest/chemrxiv.jsonl') else None
+med_date = get_most_recent_date('data/latest/medrxiv.jsonl') if file_exists('data/latest/medrxiv.jsonl') else None
+bio_date = get_most_recent_date('data/latest/biorxiv.jsonl') if file_exists('data/latest/biorxiv.jsonl') else None
 
 # File paths
-chem_files = ['data/latest/chemrxiv.jsonl', 'data/latest/chemrxiv_tmp.jsonl']
-bio_files = ['data/latest/biorxiv.jsonl', 'data/latest/biorxiv_tmp.jsonl']
-med_files = ['data/latest/medrxiv.jsonl', 'data/latest/medrxiv_tmp.jsonl']
+chem_files = [f for f in ['data/latest/chemrxiv.jsonl', 'data/latest/chemrxiv_tmp.jsonl'] if file_exists(f)]
+bio_files = [f for f in ['data/latest/biorxiv.jsonl', 'data/latest/biorxiv_tmp.jsonl'] if file_exists(f)]
+med_files = [f for f in ['data/latest/medrxiv.jsonl', 'data/latest/medrxiv_tmp.jsonl'] if file_exists(f)]
 
 # Process and save files
-chemrxiv = read_and_concatenate_jsonl(chem_files)
-save_jsonl(chemrxiv, 'data/latest/chemrxiv.jsonl')
+if chem_files:  # Only process if there are files
+    chemrxiv = read_and_concatenate_jsonl(chem_files)
+    save_jsonl(chemrxiv, 'data/latest/chemrxiv.jsonl')
 
-biorxiv = read_and_concatenate_jsonl(bio_files)
-save_jsonl(biorxiv, 'data/latest/biorxiv.jsonl')
+if bio_files:
+    biorxiv = read_and_concatenate_jsonl(bio_files)
+    save_jsonl(biorxiv, 'data/latest/biorxiv.jsonl')
 
-medrxiv = read_and_concatenate_jsonl(med_files)
-save_jsonl(medrxiv, 'data/latest/medrxiv.jsonl')
+if med_files:
+    medrxiv = read_and_concatenate_jsonl(med_files)
+    save_jsonl(medrxiv, 'data/latest/medrxiv.jsonl')
