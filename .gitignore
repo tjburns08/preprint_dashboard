@@ -1,4 +1,4 @@
 .pps_venv
 testing.ipynb
-data
+data/
 make_interactive_table.ipynb
