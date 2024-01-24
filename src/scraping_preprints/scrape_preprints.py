@@ -62,25 +62,37 @@ def save_jsonl(data, file_path):
         for line in data:
             file.write(line)
 
-# The whole thing
+# Chemrxiv
 chem_date = get_most_recent_date('data/latest/chemrxiv.jsonl') if file_exists('data/latest/chemrxiv.jsonl') else None
+if chem_date is None:
+    chemrxiv(begin_date=None, end_date=None, save_path='data/latest/chemrxiv.jsonl')
+else:
+    chemrxiv(begin_date=chem_date, end_date=None, save_path='data/latest/chemrxiv_tmp.jsonl')
+    chem_files = [f for f in ['data/latest/chemrxiv.jsonl', 'data/latest/chemrxiv_tmp.jsonl'] if file_exists(f)]
+    if chem_files:  # Only process if there are files
+        chemrxiv = read_and_concatenate_jsonl(chem_files)
+        save_jsonl(chemrxiv, 'data/latest/chemrxiv.jsonl')
+
+# Medrxiv
 med_date = get_most_recent_date('data/latest/medrxiv.jsonl') if file_exists('data/latest/medrxiv.jsonl') else None
+if med_date is None:
+    medrxiv(begin_date=None, end_date=None, save_path='data/latest/medrxiv.jsonl')
+else:
+    medrxiv(begin_date=med_date, end_date=None, save_path='data/latest/medrxiv_tmp.jsonl')
+    med_files = [f for f in ['data/latest/medrxiv.jsonl', 'data/latest/medrxiv_tmp.jsonl'] if file_exists(f)]
+    if med_files:
+        medrxiv = read_and_concatenate_jsonl(med_files)
+        save_jsonl(medrxiv, 'data/latest/medrxiv.jsonl')
+
+# Biorxiv
 bio_date = get_most_recent_date('data/latest/biorxiv.jsonl') if file_exists('data/latest/biorxiv.jsonl') else None
+if bio_date is None:
+    biorxiv(begin_date=None, end_date=None, save_path='data/latest/biorxiv.jsonl')
+else:
+    biorxiv(begin_date=bio_date, end_date=None, save_path='data/latest/biorxiv_tmp.jsonl')
+    bio_files = [f for f in ['data/latest/biorxiv.jsonl', 'data/latest/biorxiv_tmp.jsonl'] if file_exists(f)]
+    if bio_files:
+        biorxiv = read_and_concatenate_jsonl(bio_files)
+        save_jsonl(biorxiv, 'data/latest/biorxiv.jsonl')
 
-# File paths
-chem_files = [f for f in ['data/latest/chemrxiv.jsonl', 'data/latest/chemrxiv_tmp.jsonl'] if file_exists(f)]
-bio_files = [f for f in ['data/latest/biorxiv.jsonl', 'data/latest/biorxiv_tmp.jsonl'] if file_exists(f)]
-med_files = [f for f in ['data/latest/medrxiv.jsonl', 'data/latest/medrxiv_tmp.jsonl'] if file_exists(f)]
 
-# Process and save files
-if chem_files:  # Only process if there are files
-    chemrxiv = read_and_concatenate_jsonl(chem_files)
-    save_jsonl(chemrxiv, 'data/latest/chemrxiv.jsonl')
-
-if bio_files:
-    biorxiv = read_and_concatenate_jsonl(bio_files)
-    save_jsonl(biorxiv, 'data/latest/biorxiv.jsonl')
-
-if med_files:
-    medrxiv = read_and_concatenate_jsonl(med_files)
-    save_jsonl(medrxiv, 'data/latest/medrxiv.jsonl')
